@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Лабораторная работа 1</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f8fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #4b5563;
+      --line: #dbe2ea;
+      --link: #155eef;
+      --code: #eef2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    h1, h2, h3 { line-height: 1.25; }
+    h1 { margin-top: 0; font-size: 2rem; }
+    h2 { margin-top: 0; font-size: 1.35rem; }
+    h3 { font-size: 1.05rem; }
+    ul { padding-left: 20px; }
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.95em;
+    }
+    code {
+      background: var(--code);
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+    pre {
+      background: #111827;
+      color: #f9fafb;
+      padding: 16px;
+      border-radius: 12px;
+      overflow: auto;
+    }
+    a { color: var(--link); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .small { color: var(--muted); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f3f4f6; }
+  </style>
+</head>
+<body>
+  <main>
+    <section>
+      <h1>Лабораторная работа 1</h1>
+      <p><strong>Тема:</strong> разработка веб-приложения для поиска партнеров в путешествие.</p>
+      <p>Приложение позволяет регистрировать пользователей, авторизовывать их через JWT, создавать поездки, добавлять остановки маршрута, связывать пользователей с интересами и управлять участниками поездок.</p>
+    </section>
+
+    <section>
+      <h2>Ссылки на GitHub</h2>
+      <ul>
+        <li><a href="https://github.com/F0x1d/ITMO_ICT_WebDevelopment_tools_2025-2026">Репозиторий</a></li>
+        <li><a href="https://github.com/F0x1d/ITMO_ICT_WebDevelopment_tools_2025-2026/tree/main/students/k3339/Zoteev_Maksim/Lr1/task1">Практика 1.1 - task1</a></li>
+        <li><a href="https://github.com/F0x1d/ITMO_ICT_WebDevelopment_tools_2025-2026/tree/main/students/k3339/Zoteev_Maksim/Lr1/task2">Практика 1.2 - task2</a></li>
+        <li><a href="https://github.com/F0x1d/ITMO_ICT_WebDevelopment_tools_2025-2026/tree/main/students/k3339/Zoteev_Maksim/Lr1/task3">Практика 1.3 - task3</a></li>
+        <li><a href="https://github.com/F0x1d/ITMO_ICT_WebDevelopment_tools_2025-2026/tree/main/students/k3339/Zoteev_Maksim/Lr1/lab">Лабораторная работа - lab</a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Технологии</h2>
+      <ul>
+        <li>FastAPI</li>
+        <li>SQLModel</li>
+        <li>PostgreSQL</li>
+        <li>Alembic</li>
+        <li>PyJWT</li>
+        <li>Passlib</li>
+        <li>Docker Compose</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Подключение к БД</h2>
+      <p>Файлы:</p>
+      <ul>
+        <li><a href="https://github.com/F0x1d/ITMO_ICT_WebDevelopment_tools_2025-2026/blob/main/students/k3339/Zoteev_Maksim/Lr1/lab/app/core/config.py"><code>lab/app/core/config.py</code></a></li>
+        <li><a href="https://github.com/F0x1d/ITMO_ICT_WebDevelopment_tools_2025-2026/blob/main/students/k3339/Zoteev_Maksim/Lr1/lab/app/db/session.py"><code>lab/app/db/session.py</code></a></li>
+      </ul>
+      <pre><code>from sqlmodel import Session, create_engine
+
+from app.core.config import settings
+
+engine = create_engine(settings.database_url, echo=True)
+
+
+def get_session():
+    with Session(engine) as session:
+        yield session</code></pre>
+    </section>
+
+    <section>
+      <h2>Модели данных</h2>
+      <p>Всего используется 6 таблиц.</p>
+      <table>
+        <thead>
+          <tr>
+            <th>Таблица</th>
+            <th>Назначение</th>
+            <th>Ключевые поля</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>users</code></td>
+            <td>Пользователи системы</td>
+            <td><code>email</code>, <code>username</code>, <code>travel_style</code>, <code>password_hash</code></td>
+          </tr>
+          <tr>
+            <td><code>interests</code></td>
+            <td>Справочник интересов</td>
+            <td><code>name</code>, <code>description</code></td>
+          </tr>
+          <tr>
+            <td><code>trips</code></td>
+            <td>Поездки пользователей</td>
+            <td><code>title</code>, <code>departure_city</code>, <code>destination_city</code>, <code>organizer_id</code></td>
+          </tr>
+          <tr>
+            <td><code>trip_stops</code></td>
+            <td>Остановки внутри маршрута</td>
+            <td><code>trip_id</code>, <code>location</code>, <code>days</code></td>
+          </tr>
+          <tr>
+            <td><code>user_interests</code></td>
+            <td>Связь пользователя и интереса</td>
+            <td><code>user_id</code>, <code>interest_id</code>, <code>experience_level</code></td>
+          </tr>
+          <tr>
+            <td><code>trip_participants</code></td>
+            <td>Связь пользователя и поездки</td>
+            <td><code>trip_id</code>, <code>user_id</code>, <code>status</code>, <code>message</code>, <code>contact_preference</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Связи</h2>
+      <ul>
+        <li><code>users - trips</code>: one-to-many</li>
+        <li><code>trips - trip_stops</code>: one-to-many</li>
+        <li><code>users - interests</code>: many-to-many через <code>user_interests</code></li>
+        <li><code>users - trips</code>: many-to-many через <code>trip_participants</code></li>
+      </ul>
+      <p>Ассоциативные сущности имеют собственные поля связи:</p>
+      <ul>
+        <li><code>user_interests.experience_level</code></li>
+        <li><code>trip_participants.status</code></li>
+        <li><code>trip_participants.message</code></li>
+        <li><code>trip_participants.contact_preference</code></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Авторизация и безопасность</h2>
+      <ul>
+        <li>Регистрация: <code>POST /auth/register</code></li>
+        <li>Логин: <code>POST /auth/login</code></li>
+        <li>JWT access token</li>
+        <li>Аутентификация через Bearer token</li>
+        <li>Хэширование паролей</li>
+        <li>Смена пароля: <code>POST /users/me/change-password</code></li>
+      </ul>
+      <p>Код:</p>
+      <ul>
+        <li><a href="https://github.com/F0x1d/ITMO_ICT_WebDevelopment_tools_2025-2026/blob/main/students/k3339/Zoteev_Maksim/Lr1/lab/app/core/security.py"><code>lab/app/core/security.py</code></a></li>
+        <li><a href="https://github.com/F0x1d/ITMO_ICT_WebDevelopment_tools_2025-2026/blob/main/students/k3339/Zoteev_Maksim/Lr1/lab/app/api/deps.py"><code>lab/app/api/deps.py</code></a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Миграции Alembic</h2>
+      <ul>
+        <li><a href="https://github.com/F0x1d/ITMO_ICT_WebDevelopment_tools_2025-2026/blob/main/students/k3339/Zoteev_Maksim/Lr1/lab/alembic.ini"><code>lab/alembic.ini</code></a></li>
+        <li><a href="https://github.com/F0x1d/ITMO_ICT_WebDevelopment_tools_2025-2026/blob/main/students/k3339/Zoteev_Maksim/Lr1/lab/migrations/env.py"><code>lab/migrations/env.py</code></a></li>
+        <li><a href="https://github.com/F0x1d/ITMO_ICT_WebDevelopment_tools_2025-2026/tree/main/students/k3339/Zoteev_Maksim/Lr1/lab/migrations/versions"><code>lab/migrations/versions</code></a></li>
+      </ul>
+      <p>В проекте настроена система миграций Alembic, ревизии создаются и применяются через стандартные команды <code>alembic revision --autogenerate</code> и <code>alembic upgrade head</code>.</p>
+    </section>
+
+    <section>
+      <h2>Реализованные эндпоинты</h2>
+      <div class="grid">
+        <div>
+          <h3>Auth</h3>
+          <ul>
+            <li><code>POST /auth/register</code></li>
+            <li><code>POST /auth/login</code></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Users</h3>
+          <ul>
+            <li><code>GET /users</code></li>
+            <li><code>GET /users/me</code></li>
+            <li><code>GET /users/{user_id}</code></li>
+            <li><code>PATCH /users/me</code></li>
+            <li><code>POST /users/me/change-password</code></li>
+            <li><code>DELETE /users/me</code></li>
+            <li><code>POST /users/me/interests</code></li>
+            <li><code>PATCH /users/me/interests/{interest_id}</code></li>
+            <li><code>DELETE /users/me/interests/{interest_id}</code></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Interests</h3>
+          <ul>
+            <li><code>GET /interests</code></li>
+            <li><code>GET /interests/{interest_id}</code></li>
+            <li><code>POST /interests</code></li>
+            <li><code>PATCH /interests/{interest_id}</code></li>
+            <li><code>DELETE /interests/{interest_id}</code></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Trips</h3>
+          <ul>
+            <li><code>GET /trips</code></li>
+            <li><code>GET /trips/{trip_id}</code></li>
+            <li><code>POST /trips</code></li>
+            <li><code>PATCH /trips/{trip_id}</code></li>
+            <li><code>DELETE /trips/{trip_id}</code></li>
+            <li><code>POST /trips/{trip_id}/stops</code></li>
+            <li><code>PATCH /trips/stops/{stop_id}</code></li>
+            <li><code>DELETE /trips/stops/{stop_id}</code></li>
+            <li><code>POST /trips/{trip_id}/participants</code></li>
+            <li><code>PATCH /trips/participants/{participant_id}</code></li>
+            <li><code>DELETE /trips/participants/{participant_id}</code></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Вложенные GET-запросы</h2>
+      <ul>
+        <li><code>GET /users/{user_id}</code> и <code>GET /users/me</code> возвращают пользователя, его интересы, созданные поездки и поездки участия.</li>
+        <li><code>GET /trips/{trip_id}</code> возвращает поездку, организатора, остановки и участников.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Запуск проекта</h2>
+      <pre><code>cd students/k3339/Zoteev_Maksim/Lr1/lab
+docker compose up -d
+pip install -r requirements.txt
+alembic upgrade head
+python seed.py
+uvicorn app.main:app --reload</code></pre>
+      <p>Swagger UI после запуска доступен по адресу <code>http://127.0.0.1:8000/docs</code>.</p>
+    </section>
+
+    <section>
+      <h2>Вывод</h2>
+      <p>В лабораторной работе реализовано серверное приложение на FastAPI для поиска попутчиков с PostgreSQL, SQLModel, Alembic, JWT-аутентификацией, хэшированием паролей, CRUD API и вложенными моделями для one-to-many и many-to-many связей.</p>
+      <p class="small">Отчет опубликован в формате GitHub Pages как статическая страница.</p>
+    </section>
+  </main>
+</body>
+</html>
